@@ -47,8 +47,12 @@ impl<'a> Schedule<'a> {
         self.enables
             .iter()
             .sorted_by(|(k1, _), (k2, _)| k1.cmp(k2))
-            .for_each(|((start, _), assigns)| {
-                println!("{}:", start);
+            .for_each(|((start, end), assigns)| {
+                if start + 1 == *end {
+                    println!("{}:", start);
+                } else {
+                    println!("[{}, {}):", start, end);
+                }
                 assigns.iter().for_each(|assign| {
                     print!("  ");
                     Printer::write_assignment(assign, 0, out)
@@ -289,6 +293,12 @@ impl Schedule<'_> {
         Ok(max)
     }
 
+    /// Given start state `s`, end state `e`:
+    /// - In `s`, count = count + 1
+    /// - In `e`, if count < bound, the transition to loop start
+    /// - In `e`, if count == bound,
+    ///    - Reset the counter
+    ///    - transition to next state
     fn while_calculate_states(
         &mut self,
         con: &ir::While,
@@ -303,17 +313,69 @@ impl Schedule<'_> {
             .with_pos(&con.attributes));
         }
 
-        let mut body_exit = cur_state;
+        let body_exit =
+            self.calculate_states(&con.body, cur_state, &pre_guard.clone())?;
 
-        for _ in 0..*con.attributes.get("bound").unwrap() {
-            body_exit = self.calculate_states(
-                &con.body,
-                body_exit,
-                &pre_guard.clone(),
-            )?;
+        // Loop into the body using the @bound attribute
+        let bound = con.attributes["bound"];
+        if bound == 0 {
+            return Err(Error::malformed_structure(
+                "Bounded loop never runs. This is probably unintentional",
+            )
+            .with_pos(&con.attributes));
         }
 
-        Ok(body_exit)
+        let csize = get_bit_width_from(bound + 1);
+        structure!(self.builder;
+            let lt = prim std_lt(csize);
+            let c_incr = prim std_add(csize);
+            let c_zero = constant(0, csize);
+            let loop_c = prim std_reg(csize);
+            let loop_bound = constant(bound, csize);
+            let one = constant(1, csize);
+            let signal_on = constant(1, 1);
+        );
+
+        // Increment the counter in the first state
+        let incr_assigns = build_assignments!(self.builder;
+            c_incr["left"] = ? loop_c["out"];
+            c_incr["right"] = ? one["out"];
+            loop_c["in"] = ? c_incr["out"];
+            loop_c["write_en"] = ? signal_on["out"];
+        );
+        self.enables
+            .entry((cur_state, cur_state + 1))
+            .or_default()
+            .extend(incr_assigns);
+
+        // Exit transitions in final state
+        let exit_assigns = build_assignments!(self.builder;
+            lt["left"] = ? loop_c["out"];
+            lt["right"] = ? loop_bound["out"];
+        );
+        self.enables
+            .entry((body_exit, body_exit + 1))
+            .or_default()
+            .extend(exit_assigns);
+
+        let not_exit = guard!(lt["out"]);
+        let exit = not_exit.clone().not();
+        self.transitions
+            .insert((body_exit, cur_state, not_exit));
+        self.transitions
+            .insert((body_exit, body_exit + 1, exit.clone()));
+
+        // TODO: Reset counter
+        let reset_assigns = build_assignments!(self.builder;
+            loop_c["in"] = exit ? c_zero["out"];
+            loop_c["write_en"] = exit ? signal_on["out"];
+        );
+        self.enables
+            .entry((body_exit, body_exit + 1))
+            .or_default()
+            .extend(reset_assigns);
+
+        Ok(body_exit+1)
     }
 
     /// Compiled to:
