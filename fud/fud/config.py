@@ -199,7 +199,7 @@ class Configuration:
 
     def __init__(self):
         """Find the configuration file."""
-        self.path = Path(appdirs.user_config_dir("fud"))
+        self.path = Path(appdirs.user_config_dir("fud-lattice-epc5"))
         self.path.mkdir(exist_ok=True)
 
         self.config_file = self.path / "config.toml"

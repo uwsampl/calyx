@@ -70,6 +70,10 @@ class VerilatorStage(Stage):
                 round_float_to_fixed,
             )
 
+        import os
+        assert 'LAKEROAD_DIR' in os.environ
+        LAKEROAD_DIR = os.envirion["LAKEROAD_DIR"]
+
         # Step 3: compile with verilator
         cmd = " ".join(
             [
@@ -83,6 +87,8 @@ class VerilatorStage(Stage):
                 config["stages", self.name, "top_module"],
                 "--Mdir",
                 "{tmpdir_name}",
+                f"-I/{LAKEROAD_DIR}/verliator_lattice",
+                "-Wno-TIMESCALEMOD",
             ]
         )
 
