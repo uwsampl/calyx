@@ -72,7 +72,7 @@ class VerilatorStage(Stage):
 
         import os
         assert 'LAKEROAD_DIR' in os.environ
-        LAKEROAD_DIR = os.envirion["LAKEROAD_DIR"]
+        LAKEROAD_DIR = os.environ["LAKEROAD_DIR"]
 
         # Step 3: compile with verilator
         cmd = " ".join(
@@ -87,7 +87,7 @@ class VerilatorStage(Stage):
                 config["stages", self.name, "top_module"],
                 "--Mdir",
                 "{tmpdir_name}",
-                f"-I/{LAKEROAD_DIR}/verliator_lattice",
+                f"-I/{LAKEROAD_DIR}/f4pga-arch-defs/ecp5/primitives/slice",
                 "-Wno-TIMESCALEMOD",
             ]
         )
