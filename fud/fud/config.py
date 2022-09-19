@@ -32,7 +32,7 @@ DEFAULT_CONFIGURATION = {
         },
         "interpreter": {
             "exec": "./target/debug/interp",
-            "flags": None,
+            "flags": "--raw ",
             "data": None,
             "round_float_to_fixed": True,
         },
@@ -77,16 +77,6 @@ DEFAULT_CONFIGURATION = {
             "ssh_username": "",
             "remote": None,
             "save_temps": None,
-        },
-        "wdb": {
-            "mode": "hw_emu",
-            "ssh_host": "",
-            "ssh_username": "",
-            "remote": None,
-            "host": None,
-            "save_temps": None,
-            "xilinx_location": "/scratch/opt/Xilinx/Vitis/2020.2",
-            "xrt_location": "/opt/xilinx/xrt",
         },
         "fpga": {
             "data": None,
@@ -202,8 +192,10 @@ class Configuration:
 
     def __init__(self):
         """Find the configuration file."""
-        self.path = Path(appdirs.user_config_dir("fud-lattice-epc5"))
-        self.path.mkdir(exist_ok=True)
+        self.path = Path(appdirs.user_config_dir("fud-lattice-ecp5"))
+        if not self.path.parent.exists():
+            log.warn(f"{self.path.parent} doesn't exist. Creating it.")
+        self.path.mkdir(parents=True, exist_ok=True)
 
         self.config_file = self.path / "config.toml"
         if not self.config_file.exists():
