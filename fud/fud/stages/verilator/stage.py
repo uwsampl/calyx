@@ -86,7 +86,8 @@ class VerilatorStage(Stage):
                 f"-I/{LAKEROAD_DIR}/verilator_xilinx",
                 f"-I/{LAKEROAD_DIR}/verilator-unisims",
                 f"-I/{LAKEROAD_DIR}/Nitro-Parts-lib-Xilinx",
-                "-Wno-TIMESCALEMOD"
+                "-Wno-TIMESCALEMOD",
+                "-Wno-PINMISSING"
             ]
         )
 
