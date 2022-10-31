@@ -192,7 +192,8 @@ class Configuration:
 
     def __init__(self):
         """Find the configuration file."""
-        self.path = Path(appdirs.user_config_dir("fud-lattice-ecp5"))
+        assert False, "Change the below line and delete this line"
+        self.path = Path(appdirs.user_config_dir("fud-lakeroad-eval-<descriptor>"))
         if not self.path.parent.exists():
             log.warn(f"{self.path.parent} doesn't exist. Creating it.")
         self.path.mkdir(parents=True, exist_ok=True)
