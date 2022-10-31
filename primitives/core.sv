@@ -8,8 +8,8 @@
  */
 `default_nettype none
 
-// BEGIN GENERATED LAKEROAD CODE
-// END GENERATED LAKEROAD CODE
+// BEGIN GENERATED CODE
+// END GENERATED CODE
 
 module std_const #(
     parameter WIDTH = 32,
