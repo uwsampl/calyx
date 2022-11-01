@@ -84,7 +84,7 @@ class VerilatorStage(Stage):
                 config["stages", self.name, "top_module"],
                 "--Mdir",
                 "{tmpdir_name}",
-                #f"-I/{LAKEROAD_DIR}/f4pga-arch-defs/ecp5/primitives/slice",
+                #f"-I{LAKEROAD_DIR}/f4pga-arch-defs/ecp5/primitives/slice",
                 #"-Wno-TIMESCALEMOD",
             ]
         )
