@@ -71,7 +71,6 @@ class VerilatorStage(Stage):
         LAKEROAD_DIR = os.environ["LAKEROAD_DIR"]
 
         # Step 3: compile with verilator
-        assert False, "Add necessary Verilator includes and warning-ignores below"
         cmd = " ".join(
             [
                 config["stages", self.name, "exec"],
@@ -84,8 +83,7 @@ class VerilatorStage(Stage):
                 config["stages", self.name, "top_module"],
                 "--Mdir",
                 "{tmpdir_name}",
-                #f"-I/{LAKEROAD_DIR}/f4pga-arch-defs/ecp5/primitives/slice",
-                #"-Wno-TIMESCALEMOD",
+                f"-I{LAKEROAD_DIR}/verilator_xilinx",
             ]
         )
 
