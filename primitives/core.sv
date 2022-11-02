@@ -79,13 +79,13 @@ module std_not #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_not1_1 _impl(in, out);
+    not1_1 _impl(in, out);
   end
   else if (WIDTH == 5) begin
-    lakeroad_<descriptor>_not5_2 _impl(in, out);
+    not5_2 _impl(in, out);
   end
   else if (WIDTH == 8) begin
-    lakeroad_<descriptor>_not8_2 _impl(in, out);
+    not8_2 _impl(in, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -100,19 +100,19 @@ module std_and #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_and1_2 _impl(left, right, out);
+    and1_2 _impl(left, right, out);
   end
   else if (WIDTH == 2) begin
-    lakeroad_<descriptor>_and2_2 _impl(left, right, out);
+    and2_2 _impl(left, right, out);
   end
   else if (WIDTH == 8) begin
-    lakeroad_<descriptor>_and8_2 _impl(left, right, out);
+    and8_2 _impl(left, right, out);
   end
   else if (WIDTH == 16) begin
-    lakeroad_<descriptor>_and16_2 _impl(left, right, out);
+    and16_2 _impl(left, right, out);
   end
   else if (WIDTH == 32) begin
-    lakeroad_<descriptor>_and32_2 _impl(left, right, out);
+    and32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -127,10 +127,10 @@ module std_or #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_or1_2 _impl(left, right, out);
+    or1_2 _impl(left, right, out);
   end
   else if (WIDTH == 8) begin
-    lakeroad_<descriptor>_or8_2 _impl(left, right, out);
+    or8_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -145,10 +145,10 @@ module std_xor #(
    output logic [WIDTH-1:0] out
 );
   // if (WIDTH == 1) begin
-  //   lakeroad_<descriptor>_or1_2 _impl(left, right, out);
+  //   or1_2 _impl(left, right, out);
   // end
   // else if (WIDTH == 8) begin
-  //   lakeroad_<descriptor>_or8_2 _impl(left, right, out);
+  //   or8_2 _impl(left, right, out);
   // end
   // else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -163,25 +163,25 @@ module std_add #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_add1_2 _impl(left, right, out);
+    add1_2 _impl(left, right, out);
   end
   else if (WIDTH == 2) begin
-    lakeroad_<descriptor>_add2_2 _impl(left, right, out);
+    add2_2 _impl(left, right, out);
   end
   else if (WIDTH == 3) begin
-    lakeroad_<descriptor>_add3_2 _impl(left, right, out);
+    add3_2 _impl(left, right, out);
   end
   else if (WIDTH == 4) begin
-    lakeroad_<descriptor>_add4_2 _impl(left, right, out);
+    add4_2 _impl(left, right, out);
   end
   else if (WIDTH == 8) begin
-    lakeroad_<descriptor>_add8_2 _impl(left, right, out);
+    add8_2 _impl(left, right, out);
   end
   else if (WIDTH == 16) begin
-    lakeroad_<descriptor>_add16_2 _impl(left, right, out);
+    add16_2 _impl(left, right, out);
   end
   else if (WIDTH == 32) begin
-    lakeroad_<descriptor>_add32_2 _impl(left, right, out);
+    add32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -197,34 +197,34 @@ module std_sub #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_sub1_2 _impl(left, right, out);
+    sub1_2 _impl(left, right, out);
   end
   else if (WIDTH == 2) begin
-    lakeroad_<descriptor>_sub2_2 _impl(left, right, out);
+    sub2_2 _impl(left, right, out);
   end
   else if (WIDTH == 3) begin
-    lakeroad_<descriptor>_sub3_2 _impl(left, right, out);
+    sub3_2 _impl(left, right, out);
   end
   else if (WIDTH == 4) begin
-    lakeroad_<descriptor>_sub4_2 _impl(left, right, out);
+    sub4_2 _impl(left, right, out);
   end
   else if (WIDTH == 5) begin
-    lakeroad_<descriptor>_sub5_2 _impl(left, right, out);
+    sub5_2 _impl(left, right, out);
   end
   else if (WIDTH == 6) begin
-    lakeroad_<descriptor>_sub6_2 _impl(left, right, out);
+    sub6_2 _impl(left, right, out);
   end
   else if (WIDTH == 7) begin
-    lakeroad_<descriptor>_sub7_2 _impl(left, right, out);
+    sub7_2 _impl(left, right, out);
   end
   else if (WIDTH == 8) begin
-    lakeroad_<descriptor>_sub8_2 _impl(left, right, out);
+    sub8_2 _impl(left, right, out);
   end
   else if (WIDTH == 16) begin
-    lakeroad_<descriptor>_sub16_2 _impl(left, right, out);
+    sub16_2 _impl(left, right, out);
   end
   else if (WIDTH == 32) begin
-    lakeroad_<descriptor>_sub32_2 _impl(left, right, out);
+    sub32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -239,7 +239,10 @@ module std_gt #(
    output logic out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_ugt1_2 _impl(left, right, out);
+    ugt1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 5) begin
+    ugt5_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -254,7 +257,16 @@ module std_lt #(
    output logic out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_ult1_2 _impl(left, right, out);
+    ult1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 3) begin
+    ult3_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    ult4_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    ult32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -269,7 +281,16 @@ module std_eq #(
    output logic out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_eq1_2 _impl(left, right, out);
+    eq1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 5) begin
+    eq5_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 6) begin
+    eq6_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    eq32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -284,7 +305,7 @@ module std_neq #(
    output logic out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_neq1_2 _impl(left, right, out);
+    neq1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -299,7 +320,7 @@ module std_ge #(
     output logic out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_uge1_2 _impl(left, right, out);
+    uge1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -314,7 +335,10 @@ module std_le #(
    output logic out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_ule1_2 _impl(left, right, out);
+    ule1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    ule4_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -352,7 +376,7 @@ module std_mux #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-    lakeroad_<descriptor>_mux1_3 _impl(cond, tru, fal);
+    mux1_3 _impl(cond, tru, fal);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
