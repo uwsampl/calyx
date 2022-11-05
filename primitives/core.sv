@@ -88,7 +88,7 @@ module std_not #(
     not8_2 _impl(in, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -115,7 +115,7 @@ module std_and #(
     and32_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -133,7 +133,7 @@ module std_or #(
     or8_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -151,7 +151,7 @@ module std_xor #(
   //   or8_2 _impl(left, right, out);
   // end
   // else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   // end
 endmodule
 
@@ -184,7 +184,7 @@ module std_add #(
     add32_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 
 endmodule
@@ -227,7 +227,7 @@ module std_sub #(
     sub32_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -245,7 +245,7 @@ module std_gt #(
     ugt5_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -269,7 +269,7 @@ module std_lt #(
     ult32_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -293,7 +293,7 @@ module std_eq #(
     eq32_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -308,7 +308,7 @@ module std_neq #(
     neq1_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -323,7 +323,7 @@ module std_ge #(
     uge1_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -341,7 +341,7 @@ module std_le #(
     ule4_2 _impl(left, right, out);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
@@ -379,7 +379,7 @@ module std_mux #(
     mux1_3 _impl(cond, tru, fal);
   end
   else begin
-    $error("Unsupported bitwidth %0d", WIDTH);
+    unsupported_bitwidth error();
   end
 endmodule
 
