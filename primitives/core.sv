@@ -239,6 +239,9 @@ module std_gt #(
   if (WIDTH == 1) begin
     lakeroad_xilinx_ultrascale_plus_ugt1_2 _impl(left, right, out);
   end
+  else if (WIDTH == 5) begin
+    lakeroad_xilinx_ultrascale_plus_ugt5_2 _impl(left, right, out);
+  end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
   end
@@ -253,6 +256,15 @@ module std_lt #(
 );
   if (WIDTH == 1) begin
     lakeroad_xilinx_ultrascale_plus_ult1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 3) begin
+    lakeroad_xilinx_ultrascale_plus_ult3_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    lakeroad_xilinx_ultrascale_plus_ult4_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    lakeroad_xilinx_ultrascale_plus_ult32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -322,6 +334,9 @@ module std_le #(
 );
   if (WIDTH == 1) begin
     lakeroad_xilinx_ultrascale_plus_ule1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    lakeroad_xilinx_ultrascale_plus_ule4_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
