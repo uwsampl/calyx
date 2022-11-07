@@ -8,8 +8,8 @@
  */
 `default_nettype none
 
-// BEGIN GENERATED LAKEROAD CODE
-// END GENERATED LAKEROAD CODE
+// BEGIN GENERATED CODE
+// END GENERATED CODE
 
 module std_const #(
     parameter WIDTH = 32,
@@ -88,7 +88,6 @@ module std_not #(
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
   end
-
 endmodule
 
 module std_and #(
@@ -100,6 +99,15 @@ module std_and #(
 );
   if (WIDTH == 1) begin
     lakeroad_xilinx_ultrascale_plus_and1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 2) begin
+    lakeroad_xilinx_ultrascale_plus_and2_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 8) begin
+    lakeroad_xilinx_ultrascale_plus_and8_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 16) begin
+    lakeroad_xilinx_ultrascale_plus_and16_2 _impl(left, right, out);
   end
   else if (WIDTH == 32) begin
     lakeroad_xilinx_ultrascale_plus_and32_2 _impl(left, right, out);
@@ -117,7 +125,10 @@ module std_or #(
    output logic [WIDTH-1:0] out
 );
   if (WIDTH == 1) begin
-   lakeroad_xilinx_ultrascale_plus_or1_2 _impl(left, right, out);
+    lakeroad_xilinx_ultrascale_plus_or1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 8) begin
+    lakeroad_xilinx_ultrascale_plus_or8_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -131,10 +142,13 @@ module std_xor #(
    input wire               logic [WIDTH-1:0] right,
    output logic [WIDTH-1:0] out
 );
-  // if (WIDTH == x) begin
-  //   lakeroad_xilinx_ultrascale_plus_op _impl(in, out);
+  // if (WIDTH == 1) begin
+  //   lakeroad_xilinx_ultrascale_plus_or1_2 _impl(left, right, out);
   // end
-  // //else begin
+  // else if (WIDTH == 8) begin
+  //   lakeroad_xilinx_ultrascale_plus_or8_2 _impl(left, right, out);
+  // end
+  // else begin
     $error("Unsupported bitwidth %0d", WIDTH);
   // end
 endmodule
@@ -146,8 +160,10 @@ module std_add #(
    input wire               logic [WIDTH-1:0] right,
    output logic [WIDTH-1:0] out
 );
-
-  if (WIDTH == 2) begin
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_add1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 2) begin
     lakeroad_xilinx_ultrascale_plus_add2_2 _impl(left, right, out);
   end
   else if (WIDTH == 3) begin
@@ -158,6 +174,9 @@ module std_add #(
   end
   else if (WIDTH == 8) begin
     lakeroad_xilinx_ultrascale_plus_add8_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 16) begin
+    lakeroad_xilinx_ultrascale_plus_add16_2 _impl(left, right, out);
   end
   else if (WIDTH == 32) begin
     lakeroad_xilinx_ultrascale_plus_add32_2 _impl(left, right, out);
@@ -175,14 +194,35 @@ module std_sub #(
    input wire               logic [WIDTH-1:0] right,
    output logic [WIDTH-1:0] out
 );
-  if (WIDTH == 5) begin
-    lakeroad_xilinx_ultrascale_plus_sub5_2 _impl(left, right , out);
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_sub1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 2) begin
+    lakeroad_xilinx_ultrascale_plus_sub2_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 3) begin
+    lakeroad_xilinx_ultrascale_plus_sub3_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    lakeroad_xilinx_ultrascale_plus_sub4_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 5) begin
+    lakeroad_xilinx_ultrascale_plus_sub5_2 _impl(left, right, out);
   end
   else if (WIDTH == 6) begin
-    lakeroad_xilinx_ultrascale_plus_sub6_2 _impl(left, right , out);
+    lakeroad_xilinx_ultrascale_plus_sub6_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 7) begin
+    lakeroad_xilinx_ultrascale_plus_sub7_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 8) begin
+    lakeroad_xilinx_ultrascale_plus_sub8_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 16) begin
+    lakeroad_xilinx_ultrascale_plus_sub16_2 _impl(left, right, out);
   end
   else if (WIDTH == 32) begin
-    lakeroad_xilinx_ultrascale_plus_sub32_2 _impl(left, right , out);
+    lakeroad_xilinx_ultrascale_plus_sub32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -196,8 +236,8 @@ module std_gt #(
    input wire   logic [WIDTH-1:0] right,
    output logic out
 );
-  if (WIDTH == 5) begin
-    lakeroad_xilinx_ultrascale_plus_ugt5_2 _impl(left, right , out);
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_ugt1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -211,14 +251,8 @@ module std_lt #(
    input wire   logic [WIDTH-1:0] right,
    output logic out
 );
-  if (WIDTH == 3) begin 
-    lakeroad_xilinx_ultrascale_plus_ult3_2 _impl(left, right, out);
-  end
-  else if (WIDTH == 4) begin 
-    lakeroad_xilinx_ultrascale_plus_ult4_2 _impl(left, right, out);
-  end
-  else if (WIDTH == 32) begin 
-    lakeroad_xilinx_ultrascale_plus_ult32_2 _impl(left, right, out);
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_ult1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -256,7 +290,8 @@ module std_neq #(
    input wire   logic [WIDTH-1:0] right,
    output logic out
 );
-  if (0 == 1) begin 
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_neq1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -270,7 +305,8 @@ module std_ge #(
     input wire   logic [WIDTH-1:0] right,
     output logic out
 );
-  if (0 == 1) begin 
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_uge1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -284,8 +320,8 @@ module std_le #(
    input wire   logic [WIDTH-1:0] right,
    output logic out
 );
-  if (WIDTH == 4) begin 
-    lakeroad_xilinx_ultrascale_plus_ule4_2 _impl(left, right, out);
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_ule1_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -322,7 +358,12 @@ module std_mux #(
    input wire               logic [WIDTH-1:0] fal,
    output logic [WIDTH-1:0] out
 );
-  assign out = cond ? tru : fal;
+  if (WIDTH == 1) begin
+    lakeroad_xilinx_ultrascale_plus_mux1_3 _impl(cond, tru, fal);
+  end
+  else begin
+    $error("Unsupported bitwidth %0d", WIDTH);
+  end
 endmodule
 
 /// Memories

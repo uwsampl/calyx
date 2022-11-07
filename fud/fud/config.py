@@ -192,7 +192,7 @@ class Configuration:
 
     def __init__(self):
         """Find the configuration file."""
-        self.path = Path(appdirs.user_config_dir("fud-xilinx-ultrascale-plus"))
+        self.path = Path(appdirs.user_config_dir("fud-lakeroad-eval-xilinx-ultrascale-plus-lakeroad"))
         if not self.path.parent.exists():
             log.warn(f"{self.path.parent} doesn't exist. Creating it.")
         self.path.mkdir(parents=True, exist_ok=True)
