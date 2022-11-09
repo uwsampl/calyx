@@ -259,6 +259,9 @@ module std_lt #(
   if (WIDTH == 1) begin
     ult1_2 _impl(left, right, out);
   end
+  else if (WIDTH == 2) begin
+    ult2_2 _impl(left, right, out);
+  end
   else if (WIDTH == 3) begin
     ult3_2 _impl(left, right, out);
   end
@@ -306,6 +309,9 @@ module std_neq #(
 );
   if (WIDTH == 1) begin
     neq1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    neq32_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
