@@ -38,7 +38,7 @@ class VivadoBaseStage(Stage):
 
     def device_files(self, config):
         """
-        Device files requires for executing this Vivado flow
+        Device files required for executing this Vivado flow
         """
         pass
 
@@ -115,10 +115,19 @@ class VivadoStage(VivadoBaseStage):
 
     def device_files(self, config):
         root = Path(config["global", cfg.ROOT])
-        return [
-            root / "fud" / "synth" / "synth.tcl",
-            root / "fud" / "synth" / "device.xdc",
-        ]
+        # Load constraints
+        constraints = config.get(["stages", self.name, "constraints"])
+        if constraints:
+            constraints = Path(constraints)
+        else:
+            constraints = root / "fud" / "synth" / "device.xdc"
+        # Load synthesis TCL file
+        synth = config.get(["stages", self.name, "tcl"])
+        if synth:
+            tcl = Path(synth)
+        else:
+            tcl = root / "fud" / "synth" / "synth.tcl"
+        return [tcl, constraints]
 
 
 class VivadoHLSStage(VivadoBaseStage):

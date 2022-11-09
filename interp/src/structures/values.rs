@@ -425,6 +425,12 @@ impl Value {
         }
     }
 
+    pub fn truncate_in_place(&mut self, new_size: usize) {
+        Rc::make_mut(&mut self.vec).truncate(new_size);
+        self.signed = Default::default();
+        self.unsigned = Unsigned::default();
+    }
+
     /// Zero-extend the vector to length ext.
     ///
     /// # Example:
@@ -571,7 +577,7 @@ impl Value {
             Value::signed_value_fits_in(&self.vec, 64),
             "Cannot fit value into an i64"
         );
-        let init = if *(&self.vec).last().unwrap() { -1 } else { 0 };
+        let init = if *self.vec.last().unwrap() { -1 } else { 0 };
         self.vec.iter().enumerate().take(64).fold(
             init,
             |acc, (idx, bit)| -> i64 {
@@ -595,7 +601,7 @@ impl Value {
             Value::signed_value_fits_in(&self.vec, 128),
             "Cannot fit value into an i128"
         );
-        let init = if *(&self.vec).last().unwrap() { -1 } else { 0 };
+        let init = if *self.vec.last().unwrap() { -1 } else { 0 };
         self.vec.iter().enumerate().take(128).fold(
             init,
             |acc, (idx, bit)| -> i128 {
@@ -737,7 +743,7 @@ impl std::fmt::Display for Value {
         let mut out = String::new();
         write!(out, "[")?;
         for bit in self.vec.iter().rev() {
-            write!(out, "{}", if *bit { 1 } else { 0 })?;
+            write!(out, "{}", i32::from(*bit))?;
         }
         write!(out, "]")?;
         write!(f, "{}", out)
