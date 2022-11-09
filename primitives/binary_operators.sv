@@ -9,7 +9,20 @@ module std_fp_add #(
     input  logic [WIDTH-1:0] right,
     output logic [WIDTH-1:0] out
 );
-  assign out = left + right;
+  if (WIDTH == 32 && INT_WIDTH == 16 && FRAC_WIDTH == 16) begin
+    std_fp_add_32_16_16 impl(.left(left), .right(right), .out(out));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 1 && FRAC_WIDTH == 31) begin
+    std_fp_add_32_1_31 impl(.left(left), .right(right), .out(out));
+  end
+  else begin
+      $error(
+        "std_fp_add unimplemented for\n",
+        "WIDTH: %0d\n", WIDTH,
+        "INT_WIDTH: %0d\n", INT_WIDTH,
+        "FRAC_WIDTH: %0d\n", FRAC_WIDTH
+      );
+  end
 endmodule
 
 module std_fp_sub #(
@@ -21,7 +34,21 @@ module std_fp_sub #(
     input  logic [WIDTH-1:0] right,
     output logic [WIDTH-1:0] out
 );
-  assign out = left - right;
+  if (WIDTH == 32 && INT_WIDTH == 16 && FRAC_WIDTH == 16) begin
+    std_fp_sub_32_16_16 impl(.left(left), .right(right), .out(out));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 1 && FRAC_WIDTH == 31) begin
+    std_fp_sub_32_1_31 impl(.left(left), .right(right), .out(out));
+  end
+  else begin
+      $error(
+        "std_fp_sub unimplemented for\n",
+        "WIDTH: %0d\n", WIDTH,
+        "INT_WIDTH: %0d\n", INT_WIDTH,
+        "FRAC_WIDTH: %0d\n", FRAC_WIDTH
+      );
+  end
+
 endmodule
 
 module std_fp_mult_pipe #(
@@ -38,79 +65,37 @@ module std_fp_mult_pipe #(
     output logic [WIDTH-1:0] out,
     output logic             done
 );
-  logic [WIDTH-1:0]          rtmp;
-  logic [WIDTH-1:0]          ltmp;
-  logic [(WIDTH << 1) - 1:0] out_tmp;
-  // Buffer used to walk through the 3 cycles of the pipeline.
-  logic done_buf[2:0];
-
-  assign done = done_buf[2];
-
-  assign out = out_tmp[(WIDTH << 1) - INT_WIDTH - 1 : WIDTH - INT_WIDTH];
-
-  // If the done buffer is completely empty and go is high then execution
-  // just started.
-  logic start;
-  assign start = go & done_buf[0] == 0 & done_buf[1] == 0;
-
-  // Start sending the done signal.
-  always_ff @(posedge clk) begin
-    if (start)
-      done_buf[0] <= 1;
-    else
-      done_buf[0] <= 0;
+  if (WIDTH == 32 && INT_WIDTH == 16 && FRAC_WIDTH == 16 && SIGNED == 0) begin
+    std_fp_mult_pipe_32_16_16_0 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 16 && FRAC_WIDTH == 16 && SIGNED == 1) begin
+    std_fp_mult_pipe_32_16_16_1 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 32 && FRAC_WIDTH == 0 && SIGNED == 0) begin
+    std_fp_mult_pipe_32_32_0_0 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 32 && FRAC_WIDTH == 0 && SIGNED == 1) begin
+    std_fp_mult_pipe_32_32_0_1 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 1 && FRAC_WIDTH == 31 && SIGNED == 0) begin
+    std_fp_mult_pipe_32_1_31_0 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 4 && INT_WIDTH == 2 && FRAC_WIDTH == 2 && SIGNED == 1) begin
+    std_fp_mult_pipe_4_2_2_1 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 4 && INT_WIDTH == 4 && FRAC_WIDTH == 0 && SIGNED == 1) begin
+    std_fp_mult_pipe_4_4_0_1 impl(.left(left), .right(right), .out(out), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else begin
+      $error(
+        "std_fp_mult_pipe unimplemented for\n",
+        "WIDTH: %0d\n", WIDTH,
+        "INT_WIDTH: %0d\n", INT_WIDTH,
+        "FRAC_WIDTH: %0d\n", FRAC_WIDTH,
+        "SIGNED: %0d\n", SIGNED
+      );
   end
 
-  // Push the done signal through the pipeline.
-  always_ff @(posedge clk) begin
-    if (go) begin
-      done_buf[2] <= done_buf[1];
-      done_buf[1] <= done_buf[0];
-    end else begin
-      done_buf[2] <= 0;
-      done_buf[1] <= 0;
-    end
-  end
-
-  // Register the inputs
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      rtmp <= 0;
-      ltmp <= 0;
-    end else if (go) begin
-      if (SIGNED) begin
-        rtmp <= $signed(right);
-        ltmp <= $signed(left);
-      end else begin
-        rtmp <= right;
-        ltmp <= left;
-      end
-    end else begin
-      rtmp <= 0;
-      ltmp <= 0;
-    end
-
-  end
-
-  // Compute the output and save it into out_tmp
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      out_tmp <= 0;
-    end else if (go) begin
-      if (SIGNED) begin
-        // In the first cycle, this performs an invalid computation because
-        // ltmp and rtmp only get their actual values in cycle 1
-        out_tmp <= $signed(
-          { {WIDTH{ltmp[WIDTH-1]}}, ltmp} *
-          { {WIDTH{rtmp[WIDTH-1]}}, rtmp}
-        );
-      end else begin
-        out_tmp <= ltmp * rtmp;
-      end
-    end else begin
-      out_tmp <= out_tmp;
-    end
-  end
 endmodule
 
 /* verilator lint_off WIDTH */
@@ -128,86 +113,27 @@ module std_fp_div_pipe #(
     output logic [WIDTH-1:0] out_quotient,
     output logic             done
 );
-    localparam ITERATIONS = WIDTH + FRAC_WIDTH;
+  if (WIDTH == 32 && INT_WIDTH == 16 && FRAC_WIDTH == 16) begin
+    std_fp_div_pipe_32_16_16 impl(.left(left), .right(right), .out_remainder(out_remainder), .out_quotient(out_quotient), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 1 && FRAC_WIDTH == 31) begin
+    std_fp_div_pipe_32_1_31 impl(.left(left), .right(right), .out_remainder(out_remainder), .out_quotient(out_quotient), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 4 && INT_WIDTH == 2 && FRAC_WIDTH == 2) begin
+    std_fp_div_pipe_4_2_2 impl(.left(left), .right(right), .out_remainder(out_remainder), .out_quotient(out_quotient), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else if (WIDTH == 32 && INT_WIDTH == 24 && FRAC_WIDTH == 8) begin
+    std_fp_div_pipe_32_24_8 impl(.left(left), .right(right), .out_remainder(out_remainder), .out_quotient(out_quotient), .go(go), .clk(clk), .reset(reset), .done(done));
+  end
+  else begin
+      $error(
+        "std_fp_div_pipe unimplemented for\n",
+        "WIDTH: %0d\n", WIDTH,
+        "INT_WIDTH: %0d\n", INT_WIDTH,
+        "FRAC_WIDTH: %0d\n", FRAC_WIDTH
+      );
+  end
 
-    logic [WIDTH-1:0] quotient, quotient_next;
-    logic [WIDTH:0] acc, acc_next;
-    logic [$clog2(ITERATIONS)-1:0] idx;
-    logic start, running, finished, dividend_is_zero;
-
-    assign start = go && !running;
-    assign dividend_is_zero = start && left == 0;
-    assign finished = idx == ITERATIONS - 1 && running;
-
-    always_ff @(posedge clk) begin
-      if (reset || finished || dividend_is_zero)
-        running <= 0;
-      else if (start)
-        running <= 1;
-      else
-        running <= running;
-    end
-
-    always_comb begin
-      if (acc >= {1'b0, right}) begin
-        acc_next = acc - right;
-        {acc_next, quotient_next} = {acc_next[WIDTH-1:0], quotient, 1'b1};
-      end else begin
-        {acc_next, quotient_next} = {acc, quotient} << 1;
-      end
-    end
-
-    // `done` signaling
-    always_ff @(posedge clk) begin
-      if (dividend_is_zero || finished)
-        done <= 1;
-      else
-        done <= 0;
-    end
-
-    always_ff @(posedge clk) begin
-      if (running)
-        idx <= idx + 1;
-      else
-        idx <= 0;
-    end
-
-    always_ff @(posedge clk) begin
-      if (reset) begin
-        out_quotient <= 0;
-        out_remainder <= 0;
-      end else if (start) begin
-        out_quotient <= 0;
-        out_remainder <= left;
-      end else if (go == 0) begin
-        out_quotient <= out_quotient;
-        out_remainder <= out_remainder;
-      end else if (dividend_is_zero) begin
-        out_quotient <= 0;
-        out_remainder <= 0;
-      end else if (finished) begin
-        out_quotient <= quotient_next;
-        out_remainder <= out_remainder;
-      end else begin
-        out_quotient <= out_quotient;
-        if (right <= out_remainder)
-          out_remainder <= out_remainder - right;
-        else
-          out_remainder <= out_remainder;
-      end
-    end
-
-    always_ff @(posedge clk) begin
-      if (reset) begin
-        acc <= 0;
-        quotient <= 0;
-      end else if (start) begin
-        {acc, quotient} <= {{WIDTH{1'b0}}, left, 1'b0};
-      end else begin
-        acc <= acc_next;
-        quotient <= quotient_next;
-      end
-    end
 endmodule
 
 module std_fp_gt #(

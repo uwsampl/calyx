@@ -84,9 +84,11 @@ class VerilatorStage(Stage):
                 "--Mdir",
                 "{tmpdir_name}",
                 f"-I{LAKEROAD_DIR}/verilator_xilinx",
+                f"-I{LAKEROAD_DIR}/verilator-unisims",
                 "-Wno-PINMISSING",
                 "-Wno-TIMESCALEMOD",
                 "-Wno-WIDTH",
+                "-Wno-LATCH",
             ]
         )
 
