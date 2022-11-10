@@ -145,7 +145,15 @@ module std_fp_gt #(
     input  logic [WIDTH-1:0] right,
     output logic             out
 );
-  assign out = left > right;
+  if (WIDTH == 1) begin
+    ugt1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 5) begin
+    ugt5_2 _impl(left, right, out);
+  end
+  else begin
+    $error("Unsupported bitwidth %0d", WIDTH);
+  end
 endmodule
 
 /// =================== Signed, Fixed Point =========================
@@ -158,7 +166,18 @@ module std_fp_sadd #(
     input  signed [WIDTH-1:0] right,
     output signed [WIDTH-1:0] out
 );
-  assign out = $signed(left + right);
+  if (WIDTH == 1) begin
+    sadd1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    sadd4_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    sadd32_2 _impl(left, right, out);
+  end
+  else begin
+    $error("Unsupported bitwidth %0d", WIDTH);
+  end
 endmodule
 
 module std_fp_ssub #(
@@ -170,8 +189,18 @@ module std_fp_ssub #(
     input  signed [WIDTH-1:0] right,
     output signed [WIDTH-1:0] out
 );
-
-  assign out = $signed(left - right);
+  if (WIDTH == 1) begin
+    ssub1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    ssub4_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    ssub32_2 _impl(left, right, out);
+  end
+  else begin
+    $error("Unsupported bitwidth %0d", WIDTH);
+  end
 endmodule
 
 module std_fp_smult_pipe #(
