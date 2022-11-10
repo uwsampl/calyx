@@ -105,6 +105,9 @@ module std_and #(
   else if (WIDTH == 2) begin
     and2_2 _impl(left, right, out);
   end
+  else if (WIDTH == 4) begin
+    and4_2 _impl(left, right, out);
+  end
   else if (WIDTH == 8) begin
     and8_2 _impl(left, right, out);
   end
@@ -286,6 +289,9 @@ module std_eq #(
   if (WIDTH == 1) begin
     eq1_2 _impl(left, right, out);
   end
+  else if (WIDTH == 4) begin
+    eq4_2 _impl(left, right, out);
+  end
   else if (WIDTH == 5) begin
     eq5_2 _impl(left, right, out);
   end
@@ -327,6 +333,9 @@ module std_ge #(
 );
   if (WIDTH == 1) begin
     uge1_2 _impl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    uge4_2 _impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
