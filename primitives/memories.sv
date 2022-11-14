@@ -25,44 +25,71 @@ module seq_mem_d1 #(
    input wire logic write_en,
    output logic write_done
 );
-  if (WIDTH == 32 && SIZE == 2 && IDX_SIZE == 3) begin
-    seq_mem_d1_32_2_3 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
+  // Internal memory
+  (* ram_style = "ultra" *)  logic [WIDTH-1:0] mem[SIZE-1:0];
+
+  // Register for the read output
+  logic [WIDTH-1:0] read_out;
+  assign out = read_out;
+
+  // Read value from the memory
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      read_out <= '0;
+    end else if (read_en) begin
+      /* verilator lint_off WIDTH */
+      read_out <= mem[addr0];
+    end else if (write_en) begin
+      // Explicitly clobber the read output when a write is performed
+      read_out <= 'x;
+    end else begin
+      read_out <= read_out;
+    end
   end
-  else if (WIDTH == 32 && SIZE == 4 && IDX_SIZE == 4) begin
-    seq_mem_d1_32_4_4 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
+
+  // Propagate the read_done signal
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      read_done <= '0;
+    end else if (read_en) begin
+      read_done <= '1;
+    end else begin
+      read_done <= '0;
+    end
   end
-  else if (WIDTH == 32 && SIZE == 6 && IDX_SIZE == 4) begin
-    seq_mem_d1_32_6_4 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
+
+  // Write value to the memory
+  always_ff @(posedge clk) begin
+    if (write_en)
+      mem[addr0] <= in;
   end
-  else if (WIDTH == 32 && SIZE == 8 && IDX_SIZE == 5) begin
-    seq_mem_d1_32_8_5 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
+
+  // Propagate the write_done signal
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      write_done <= '0;
+    end else if (write_en) begin
+      write_done <= 1'd1;
+    end else begin
+      write_done <= '0;
+    end
   end
-  else if (WIDTH == 32 && SIZE == 16 && IDX_SIZE == 4) begin
-    seq_mem_d1_32_16_4 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
-  end
-  else if (WIDTH == 32 && SIZE == 64 && IDX_SIZE == 8) begin
-    seq_mem_d1_32_64_8 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
-  end
-  else if (WIDTH == 32 && SIZE == 96 && IDX_SIZE == 8) begin
-    seq_mem_d1_32_96_8 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
-  end
-  else if (WIDTH == 32 && SIZE == 1 && IDX_SIZE == 2) begin
-    seq_mem_d1_32_1_2 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
-  end
-  else if (WIDTH == 32 && SIZE == 8 && IDX_SIZE == 4) begin
-    seq_mem_d1_32_8_4 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
-  end
-  else if (WIDTH == 32 && SIZE == 144 && IDX_SIZE == 8) begin
-    seq_mem_d1_32_144_8 impl(.clk(clk), .reset(reset), .addr0(addr0), .read_en(read_en), .out(out), .read_done(read_done), .in(in), .write_en(write_en), .write_done(write_done));
-  end
-  else begin
-      $error(
-        "seq_mem_d1 unimplemented for\n",
-        "WIDTH: %0d\n", WIDTH,
-        "SIZE: %0d\n", SIZE,
-        "IDX_SIZE: %0d\n", IDX_SIZE
-      );
-  end
+
+  // Check for out of bounds access
+  `ifdef VERILATOR
+    always_comb begin
+      if (addr0 >= SIZE)
+        $error(
+          "std_mem_d1: Out of bounds access\n",
+          "addr0: %0d\n", addr0,
+          "SIZE: %0d", SIZE
+        );
+    end
+    always_comb begin
+      if (read_en && write_en)
+        $error("Simultaneous read and write attempted\n");
+    end
+  `endif
 endmodule
 
 module seq_mem_d2 #(

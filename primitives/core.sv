@@ -370,6 +370,9 @@ module std_lsh #(
   if (WIDTH == 1) begin
     shl1_2 _impl(left, right, out);
   end
+  else if (WIDTH == 32) begin
+    shl32_2 _impl(left, right, out);
+  end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
   end
@@ -384,10 +387,13 @@ module std_rsh #(
 );
 
   if (WIDTH == 1) begin
-    shru1_2 _mpl(left, right, out);
+    shru1_2 impl(left, right, out);
   end
   else if (WIDTH == 4) begin
-    shru4_2 _mpl(left, right, out);
+    shru4_2 impl(left, right, out);
+  end
+  else if (WIDTH == 32) begin
+    shru32_2 impl(left, right, out);
   end
   else begin
     $error("Unsupported bitwidth %0d", WIDTH);
@@ -469,18 +475,29 @@ module std_mem_d1 #(
    output logic [ WIDTH-1:0] read_data,
    output logic              done
 );
-  if (WIDTH == 32 && SIZE == 16 && IDX_SIZE == 4) begin
-    std_mem_d1 impl(.addr0(addr0), .write_data(write_data), .write_en(write_en), .clk(clk), .read_data(read_data), .done(done));
-  end
-  else begin
-      $error(
-        "std_mem_d1 unimplemented for\n",
-        "WIDTH: %0d\n", WIDTH,
-        "SIZE: %0d\n", SIZE,
-        "IDX_SIZE: %0d\n", IDX_SIZE
-      );
+
+  logic [WIDTH-1:0] mem[SIZE-1:0];
+
+  /* verilator lint_off WIDTH */
+  assign read_data = mem[addr0];
+  always_ff @(posedge clk) begin
+    if (write_en) begin
+      mem[addr0] <= write_data;
+      done <= 1'd1;
+    end else done <= 1'd0;
   end
 
+  // Check for out of bounds access
+  `ifdef VERILATOR
+    always_comb begin
+      if (addr0 >= SIZE)
+        $error(
+          "std_mem_d1: Out of bounds access\n",
+          "addr0: %0d\n", addr0,
+          "SIZE: %0d", SIZE
+        );
+    end
+  `endif
 endmodule
 
 module std_mem_d2 #(
@@ -498,20 +515,35 @@ module std_mem_d2 #(
    output logic [ WIDTH-1:0] read_data,
    output logic              done
 );
-  if (WIDTH == 32 && D0_SIZE == 16 && D1_SIZE == 16 && D0_IDX_SIZE == 4 && D1_IDX_SIZE == 4) begin
-    std_mem_d2_32_16_16_4_4 impl(.addr0(addr0), .addr1(addr1), .write_data(write_data), .write_en(write_en), .clk(clk), .read_data(read_data), .done(done));
-  end
-  else begin
-      $error(
-        "std_mem_d2 unimplemented for\n",
-        "WIDTH: %0d\n", WIDTH,
-        "D0_SIZE: %0d\n", D0_SIZE,
-        "D1_SIZE: %0d\n", D1_SIZE,
-        "D0_IDX_SIZE: %0d\n", D0_IDX_SIZE,
-        "D1_IDX_SIZE: %0d\n", D1_IDX_SIZE
-      );
+
+  /* verilator lint_off WIDTH */
+  logic [WIDTH-1:0] mem[D0_SIZE-1:0][D1_SIZE-1:0];
+
+  assign read_data = mem[addr0][addr1];
+  always_ff @(posedge clk) begin
+    if (write_en) begin
+      mem[addr0][addr1] <= write_data;
+      done <= 1'd1;
+    end else done <= 1'd0;
   end
 
+  // Check for out of bounds access
+  `ifdef VERILATOR
+    always_comb begin
+      if (addr0 >= D0_SIZE)
+        $error(
+          "std_mem_d2: Out of bounds access\n",
+          "addr0: %0d\n", addr0,
+          "D0_SIZE: %0d", D0_SIZE
+        );
+      if (addr1 >= D1_SIZE)
+        $error(
+          "std_mem_d2: Out of bounds access\n",
+          "addr1: %0d\n", addr1,
+          "D1_SIZE: %0d", D1_SIZE
+        );
+    end
+  `endif
 endmodule
 
 module std_mem_d3 #(
@@ -532,21 +564,41 @@ module std_mem_d3 #(
    output logic [ WIDTH-1:0] read_data,
    output logic              done
 );
-  if (WIDTH == 32 && D0_SIZE == 16 && D1_SIZE == 16 && D2_SIZE == 16 && D0_IDX_SIZE == 4 && D1_IDX_SIZE == 4 && D2_IDX_SIZE == 4) begin
-    std_mem_d3_32_16_16_16_4_4_4 impl(.addr0(addr0), .addr1(addr1), .addr2(addr2), .write_data(write_data), .write_en(write_en), .clk(clk), .read_data(read_data), .done(done));
+
+  /* verilator lint_off WIDTH */
+  logic [WIDTH-1:0] mem[D0_SIZE-1:0][D1_SIZE-1:0][D2_SIZE-1:0];
+
+  assign read_data = mem[addr0][addr1][addr2];
+  always_ff @(posedge clk) begin
+    if (write_en) begin
+      mem[addr0][addr1][addr2] <= write_data;
+      done <= 1'd1;
+    end else done <= 1'd0;
   end
-  else begin
-      $error(
-        "std_mem_d3 unimplemented for\n",
-        "WIDTH: %0d\n", WIDTH,
-        "D0_SIZE: %0d\n", D0_SIZE,
-        "D1_SIZE: %0d\n", D1_SIZE,
-        "D2_SIZE: %0d\n", D2_SIZE,
-        "D0_IDX_SIZE: %0d\n", D0_IDX_SIZE,
-        "D1_IDX_SIZE: %0d\n", D1_IDX_SIZE,
-        "D2_IDX_SIZE: %0d\n", D2_IDX_SIZE
-      );
-  end
+
+  // Check for out of bounds access
+  `ifdef VERILATOR
+    always_comb begin
+      if (addr0 >= D0_SIZE)
+        $error(
+          "std_mem_d3: Out of bounds access\n",
+          "addr0: %0d\n", addr0,
+          "D0_SIZE: %0d", D0_SIZE
+        );
+      if (addr1 >= D1_SIZE)
+        $error(
+          "std_mem_d3: Out of bounds access\n",
+          "addr1: %0d\n", addr1,
+          "D1_SIZE: %0d", D1_SIZE
+        );
+      if (addr2 >= D2_SIZE)
+        $error(
+          "std_mem_d3: Out of bounds access\n",
+          "addr2: %0d\n", addr2,
+          "D2_SIZE: %0d", D2_SIZE
+        );
+    end
+  `endif
 endmodule
 
 module std_mem_d4 #(
@@ -570,23 +622,47 @@ module std_mem_d4 #(
    output logic [ WIDTH-1:0] read_data,
    output logic              done
 );
-  if (WIDTH == 32 && D0_SIZE == 16 && D1_SIZE == 16 && D2_SIZE == 16 && D3_SIZE == 16 && D0_IDX_SIZE == 4 && D1_IDX_SIZE == 4 && D2_IDX_SIZE == 4 && D3_IDX_SIZE == 4) begin
-    std_mem_d4_32_16_16_16_16_4_4_4_4 impl(.addr0(addr0), .addr1(addr1), .addr2(addr2), .addr3(addr3), .write_data(write_data), .write_en(write_en), .clk(clk), .read_data(read_data), .done(done));
+
+  /* verilator lint_off WIDTH */
+  logic [WIDTH-1:0] mem[D0_SIZE-1:0][D1_SIZE-1:0][D2_SIZE-1:0][D3_SIZE-1:0];
+
+  assign read_data = mem[addr0][addr1][addr2][addr3];
+  always_ff @(posedge clk) begin
+    if (write_en) begin
+      mem[addr0][addr1][addr2][addr3] <= write_data;
+      done <= 1'd1;
+    end else done <= 1'd0;
   end
-  else begin
-      $error(
-        "std_mem_d4 unimplemented for\n",
-        "WIDTH: %0d\n", WIDTH,
-        "D0_SIZE: %0d\n", D0_SIZE,
-        "D1_SIZE: %0d\n", D1_SIZE,
-        "D2_SIZE: %0d\n", D2_SIZE,
-        "D3_SIZE: %0d\n", D3_SIZE,
-        "D0_IDX_SIZE: %0d\n", D0_IDX_SIZE,
-        "D1_IDX_SIZE: %0d\n", D1_IDX_SIZE,
-        "D2_IDX_SIZE: %0d\n", D2_IDX_SIZE,
-        "D3_IDX_SIZE: %0d\n", D3_IDX_SIZE
-      );
-  end
+
+  // Check for out of bounds access
+  `ifdef VERILATOR
+    always_comb begin
+      if (addr0 >= D0_SIZE)
+        $error(
+          "std_mem_d4: Out of bounds access\n",
+          "addr0: %0d\n", addr0,
+          "D0_SIZE: %0d", D0_SIZE
+        );
+      if (addr1 >= D1_SIZE)
+        $error(
+          "std_mem_d4: Out of bounds access\n",
+          "addr1: %0d\n", addr1,
+          "D1_SIZE: %0d", D1_SIZE
+        );
+      if (addr2 >= D2_SIZE)
+        $error(
+          "std_mem_d4: Out of bounds access\n",
+          "addr2: %0d\n", addr2,
+          "D2_SIZE: %0d", D2_SIZE
+        );
+      if (addr3 >= D3_SIZE)
+        $error(
+          "std_mem_d4: Out of bounds access\n",
+          "addr3: %0d\n", addr3,
+          "D3_SIZE: %0d", D3_SIZE
+        );
+    end
+  `endif
 endmodule
 
 `default_nettype wire
