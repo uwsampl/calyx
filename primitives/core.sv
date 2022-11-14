@@ -367,7 +367,12 @@ module std_lsh #(
    input wire               logic [WIDTH-1:0] right,
    output logic [WIDTH-1:0] out
 );
-  assign out = left << right;
+  if (WIDTH == 1) begin
+    shl1_2 _impl(left, right, out);
+  end
+  else begin
+    $error("Unsupported bitwidth %0d", WIDTH);
+  end
 endmodule
 
 module std_rsh #(
@@ -377,7 +382,16 @@ module std_rsh #(
    input wire               logic [WIDTH-1:0] right,
    output logic [WIDTH-1:0] out
 );
-  assign out = left >> right;
+
+  if (WIDTH == 1) begin
+    shru1_2 _mpl(left, right, out);
+  end
+  else if (WIDTH == 4) begin
+    shru4_2 _mpl(left, right, out);
+  end
+  else begin
+    $error("Unsupported bitwidth %0d", WIDTH);
+  end
 endmodule
 
 /// this primitive is intended to be used
