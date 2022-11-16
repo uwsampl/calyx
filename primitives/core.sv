@@ -430,37 +430,16 @@ module std_reg #(
    output logic [WIDTH - 1:0] out,
    output logic               done
 );
-  if (WIDTH == 1) begin
-    std_reg_1 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 2) begin
-    std_reg_2 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 3) begin
-    std_reg_3 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 4) begin
-    std_reg_4 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 5) begin
-    std_reg_5 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 6) begin
-    std_reg_6 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 7) begin
-    std_reg_7 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else if (WIDTH == 32) begin
-    std_reg_32 impl(.clk(clk), .reset(reset), .in(in),.out(out), .done(done), .write_en(write_en));
-  end
-  else begin
-      $error(
-        "std_reg unimplemented for\n",
-        "WIDTH: %0d\n", WIDTH
-      );
-  end
 
+  always_ff @(posedge clk) begin
+    if (reset) begin
+       out <= 0;
+       done <= 0;
+    end else if (write_en) begin
+      out <= in;
+      done <= 1'd1;
+    end else done <= 1'd0;
+  end
 endmodule
 
 module std_mem_d1 #(
